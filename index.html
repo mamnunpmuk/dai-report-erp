@@ -19,7 +19,7 @@
     --good:#2f6b4f;
     --bad:#a83b2e;
     --muted:#6b7268;
-    --amber:#b5862f
+    --amber:#b5862f;
     --radius:10px;
   }
   *{box-sizing:border-box;}
@@ -44,6 +44,10 @@
     font-family:'Hind Siliguri',sans-serif;font-size:15px;background:#fdfcf9;color:var(--ink);
   }
   select:focus, input:focus, textarea:focus{outline:2px solid var(--pine);outline-offset:1px;border-color:var(--pine);}
+  /* remove the up/down increment-decrement spinner on number fields */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none !important;margin:0 !important;}
+  input[type=number]{-moz-appearance:textfield !important;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .remaining-box{
     background:var(--paper);border:1px dashed var(--line);border-radius:8px;
@@ -120,11 +124,9 @@
       <h2><span class="num">১</span> কর্মীর তথ্য</h2>
       <label for="entryDate">তারিখ</label>
       <input type="date" id="entryDate" required>
-      <div class="hint">ডিফল্টভাবে আজকের তারিখ দেখাবে, প্রয়োজনে বদলে দিতে পারবেন</div>
 
       <label for="employeeCode">কোড নং</label>
       <input type="text" id="employeeCode" placeholder="কর্মী কোড">
-      <div class="hint">কোড দেওয়ার পর অন্য ফিল্ডে গেলে আগের কোনো এন্ট্রি থাকলে এখানে দেখাবে</div>
       <div class="lookup-panel" id="lookupPanel">
         <div class="lp-title">⚠️ এই কোডে আগের এন্ট্রি পাওয়া গেছে</div>
         <div id="lookupResults"></div>
@@ -282,7 +284,7 @@ function enterUpdateMode(match) {
   document.getElementById('monthlyDue').value = match.monthlyDue || '';
   document.getElementById('monthlyCollected').value = ''; // this period's new payment -- blank, to be filled in
 
-  collectedSoFarLabel.textContent = 'এ পর্যন্ত আদায় (স্বয়ংক্রিয় হিসাব)';
+  collectedSoFarLabel.textContent = 'এ পর্যন্ত আদায়';
   collectedHint.style.display = 'block';
   collectedSoFarInput.readOnly = true;
   collectedSoFarInput.value = existingCollectedSoFar;
