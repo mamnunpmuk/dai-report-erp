@@ -22,53 +22,74 @@
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:'Hind Siliguri',sans-serif;min-height:100vh;}
-  .topbar{background:var(--pine-deep);color:#f0ece0;padding:22px 20px 20px;border-bottom:4px solid var(--clay);}
-  .topbar .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c9a876;margin-bottom:6px;}
-  .topbar h1{margin:0;font-size:20px;font-weight:600;line-height:1.4;}
-  .topbar .nav-link{
-    display:inline-block;margin-top:12px;color:#e8dfc8;font-size:13px;
-    text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:20px;
+
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:var(--pine-deep);color:#f0ece0;padding:16px 20px;border-bottom:4px solid var(--clay);
+    box-shadow:0 4px 16px rgba(0,0,0,.12);
   }
-  .topbar .nav-link:hover{background:rgba(255,255,255,.08);}
+  .topbar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .topbar-text .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#c9a876;margin-bottom:4px;}
+  .topbar-text h1{margin:0;font-size:18px;font-weight:600;line-height:1.3;}
+  .nav-buttons{display:flex;gap:8px;flex-shrink:0;}
+  .nav-btn{
+    display:inline-flex;align-items:center;gap:6px;color:#f0ece0;font-size:13px;font-weight:600;
+    text-decoration:none;padding:8px 14px;border-radius:20px;transition:background .15s, transform .1s;
+    border:1px solid rgba(255,255,255,.25);
+  }
+  .nav-btn:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);}
+  .nav-btn.primary{background:var(--clay);border-color:var(--clay);}
+  .nav-btn.primary:hover{background:var(--clay-deep);}
+
   .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px;}
   .search-box{
-    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
-    font-family:'Hind Siliguri',sans-serif;font-size:15px;background:#fdfcf9;color:var(--ink);
-    margin-bottom:16px;
+    width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+    font-family:'Hind Siliguri',sans-serif;font-size:15px;background:var(--panel);color:var(--ink);
+    margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:border-color .15s, box-shadow .15s;
   }
-  .region-group{margin-bottom:18px;}
+  .search-box:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(31,74,61,.1);}
+
+  .region-group{margin-bottom:22px;animation:fadeIn .3s ease both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
   .region-title{
-    font-size:14px;font-weight:600;color:var(--pine);margin-bottom:8px;
-    display:flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:700;color:var(--pine);margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.03em;
+    padding-left:2px;
   }
+  .region-title::before{content:'';width:4px;height:14px;background:var(--clay);border-radius:2px;display:inline-block;}
   .region-title .count{
     font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
-    background:var(--panel);border:1px solid var(--line);padding:1px 8px;border-radius:10px;
+    background:var(--panel);border:1px solid var(--line);padding:1px 9px;border-radius:10px;
   }
   .entry-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:8px;
-    padding:12px 14px;margin-bottom:8px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;margin-bottom:10px;transition:box-shadow .15s, border-color .15s;
   }
+  .entry-card:hover{box-shadow:0 4px 14px rgba(19,47,39,.08);border-color:#c7bfa8;}
   .entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
-  .entry-name{font-weight:600;font-size:14px;}
-  .entry-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .entry-name{font-weight:600;font-size:14.5px;}
+  .entry-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
   .entry-figures{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;
-    margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:12px;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;
+    margin-top:10px;padding-top:10px;border-top:1px solid #f0ede3;
   }
-  .entry-figures .f-label{color:var(--muted);display:block;font-size:10px;}
-  .entry-figures .f-value{color:var(--ink);font-weight:600;}
+  .entry-figures .f-label{color:var(--muted);display:block;font-size:10.5px;margin-bottom:2px;}
+  .entry-figures .f-value{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink);font-weight:600;}
   .entry-figures .f-value.bad{color:var(--bad);}
-  .entry-comment{font-size:12px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px;}
+  .entry-figures .f-value.good{color:var(--good);}
+  .entry-comment{font-size:12px;color:var(--muted);margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;line-height:1.5;}
   .entry-actions{display:flex;gap:8px;flex-shrink:0;}
   .del-btn{
-    background:#fff;border:1px solid #e3b6ac;color:var(--bad);border-radius:6px;
-    padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;white-space:nowrap;
+    background:#fff;border:1px solid #e3b6ac;color:var(--bad);border-radius:7px;
+    padding:7px 13px;font-size:12px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;
+    white-space:nowrap;transition:background .15s, color .15s;
   }
-  .del-btn.confirm{background:var(--bad);color:#fff;}
-  .empty-msg, .loading-msg{text-align:center;color:var(--muted);padding:40px 0;font-size:14px;}
+  .del-btn:hover{background:#fbeae6;}
+  .del-btn.confirm{background:var(--bad);color:#fff;border-color:var(--bad);}
+  .del-btn.confirm:hover{background:#8f2e23;}
+  .empty-msg, .loading-msg{text-align:center;color:var(--muted);padding:50px 0;font-size:14px;}
   .status{margin:0 0 16px;padding:12px 14px;border-radius:8px;font-size:14px;display:none;}
-  .status.show{display:block;}
+  .status.show{display:block;animation:fadeIn .2s ease both;}
   .status.ok{background:#e6f0ea;color:var(--good);border:1px solid #b9d9c6;}
   .status.err{background:#f7e5e1;color:var(--bad);border:1px solid #e3b6ac;}
   .config-warning{background:#fdf1e0;border:1px solid #e6c48f;color:#7a5215;padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
@@ -78,9 +99,16 @@
 <body>
 
 <div class="topbar">
-  <div class="eyebrow">পদক্ষেপ মানবিক উন্নয়ন কেন্দ্র · মানব সম্পদ ও প্রশাসন বিভাগ</div>
-  <h1>সব এন্ট্রি — মেয়াদোত্তীর্ণ ঋনের দায়</h1>
-  <a class="nav-link" href="index.html">➕ নতুন এন্ট্রি করুন</a>
+  <div class="topbar-inner">
+    <div class="topbar-text">
+      <div class="eyebrow">পদক্ষেপ মানবিক উন্নয়ন কেন্দ্র · মানব সম্পদ ও প্রশাসন বিভাগ</div>
+      <h1>সব এন্ট্রি — মেয়াদোত্তীর্ণ ঋনের দায়</h1>
+    </div>
+    <div class="nav-buttons">
+      <a class="nav-btn" href="index.html">🏠 হোম</a>
+      <a class="nav-btn primary" href="index.html">➕ নতুন এন্ট্রি</a>
+    </div>
+  </div>
 </div>
 
 <div class="wrap">
@@ -88,7 +116,7 @@
     <code>API_URL</code> ভ্যারিয়েবলে আপনার Apps Script Web App URL বসান (entries.html এর নিচের দিকে)।
   </div>
   <div class="status" id="status"></div>
-  <input type="text" id="searchBox" class="search-box" placeholder="নাম, কোড, বা ব্রাঞ্চ দিয়ে খুঁজুন...">
+  <input type="text" id="searchBox" class="search-box" placeholder="🔍 নাম, কোড, বা ব্রাঞ্চ দিয়ে খুঁজুন...">
   <div id="listContainer"><div class="loading-msg">লোড হচ্ছে...</div></div>
 </div>
 
@@ -152,8 +180,8 @@ function render(filterText) {
           <div class="entry-figures">
             <div><span class="f-label">দায়</span><span class="f-value">৳ ${e.overdueAmount}</span></div>
             <div><span class="f-label">মাসিক আদায়যোগ্য</span><span class="f-value">৳ ${e.monthlyDue}</span></div>
-            <div><span class="f-label">এ পর্যন্ত আদায়</span><span class="f-value">৳ ${e.collectedSoFar}</span></div>
-            <div><span class="f-label">অবশিষ্ট</span><span class="f-value ${e.remaining > 0 ? 'bad' : ''}">৳ ${e.remaining}</span></div>
+            <div><span class="f-label">এ পর্যন্ত আদায়</span><span class="f-value good">৳ ${e.collectedSoFar}</span></div>
+            <div><span class="f-label">অবশিষ্ট</span><span class="f-value ${e.remaining > 0 ? 'bad' : 'good'}">৳ ${e.remaining}</span></div>
           </div>
           ${e.comment ? `<div class="entry-comment">${e.comment}</div>` : ''}
         </div>
