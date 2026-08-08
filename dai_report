@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>মেয়াদোত্তীর্ণ ঋনের দায় এন্ট্রি — পদক্ষেপ মানবিক উন্নয়ন কেন্দ্র</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16231f;
+    --paper:#f6f4ee;
+    --panel:#ffffff;
+    --line:#dcd6c6;
+    --pine:#1f4a3d;
+    --pine-deep:#132f27;
+    --clay:#b5622f;
+    --clay-deep:#8f4a22;
+    --good:#2f6b4f;
+    --bad:#a83b2e;
+    --muted:#6b7268;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Hind Siliguri',sans-serif;min-height:100vh;}
+  .topbar{background:var(--pine-deep);color:#f0ece0;padding:22px 20px 20px;border-bottom:4px solid var(--clay);}
+  .topbar .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c9a876;margin-bottom:6px;}
+  .topbar h1{margin:0;font-size:21px;font-weight:600;line-height:1.4;}
+  .topbar p{margin:6px 0 0;color:#b9c7bd;font-size:14px;}
+  .date-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    margin-top:10px;background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+    padding:5px 12px;border-radius:20px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:#e8dfc8;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .card h2{font-size:14px;margin:0 0 14px;color:var(--pine);font-weight:600;display:flex;align-items:center;gap:8px;}
+  .card h2 .num{font-family:'JetBrains Mono',monospace;background:var(--pine);color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:14px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  select, input[type=text], input[type=number], textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+    font-family:'Hind Siliguri',sans-serif;font-size:15px;background:#fdfcf9;color:var(--ink);
+  }
+  select:focus, input:focus, textarea:focus{outline:2px solid var(--pine);outline-offset:1px;border-color:var(--pine);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .remaining-box{
+    background:var(--paper);border:1px dashed var(--line);border-radius:8px;
+    padding:12px 14px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .remaining-box span:first-child{font-size:13px;color:var(--muted);}
+  .remaining-box .amount{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--pine);}
+  .remaining-box .amount.bad{color:var(--bad);}
+  textarea{resize:vertical;min-height:64px;}
+  .submit-btn{
+    width:100%;padding:14px;background:var(--clay);color:#fff;border:none;border-radius:8px;
+    font-family:'Hind Siliguri',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-top:18px;transition:background .15s;
+  }
+  .submit-btn:hover{background:var(--clay-deep);}
+  .submit-btn:disabled{background:#c9c2ae;cursor:not-allowed;}
+  .status{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;display:none;}
+  .status.show{display:block;}
+  .status.ok{background:#e6f0ea;color:var(--good);border:1px solid #b9d9c6;}
+  .status.err{background:#f7e5e1;color:var(--bad);border:1px solid #e3b6ac;}
+  .config-warning{background:#fdf1e0;border:1px solid #e6c48f;color:#7a5215;padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+  .config-warning code{font-family:'JetBrains Mono',monospace;background:#f2e2c2;padding:1px 5px;border-radius:4px;}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="eyebrow">পদক্ষেপ মানবিক উন্নয়ন কেন্দ্র · মানব সম্পদ ও প্রশাসন বিভাগ</div>
+  <h1>মেয়াদোত্তীর্ণ ঋনের দায় এন্ট্রি</h1>
+  <p>নতুন এন্ট্রি সরাসরি Google Sheet-এ যোগ হবে ও উপমোট/সর্বমোট স্বয়ংক্রিয়ভাবে হালনাগাদ হবে</p>
+</div>
+
+<div class="wrap">
+
+  <div id="configWarning" class="config-warning" style="display:none">
+    এই ফর্মটি এখনও ব্যাকএন্ডের সাথে যুক্ত করা হয়নি। <code>API_URL</code> ভ্যারিয়েবলে আপনার Apps Script Web App URL বসান (index.html এর নিচের দিকে)।
+  </div>
+
+  <form id="entryForm">
+    <div class="card">
+      <h2><span class="num">১</span> কর্মীর তথ্য</h2>
+      <label for="entryDate">তারিখ</label>
+      <input type="date" id="entryDate" required>
+      <div class="hint">ডিফল্টভাবে আজকের তারিখ দেখাবে, প্রয়োজনে বদলে দিতে পারবেন</div>
+
+      <label for="name">কর্মীর নাম</label>
+      <input type="text" id="name" required placeholder="পূর্ণ নাম লিখুন">
+
+      <div class="row2">
+        <div>
+          <label for="designation">পদবী</label>
+          <input type="text" id="designation" placeholder="যেমনঃ ব্রাঞ্চ ম্যানেজার">
+        </div>
+        <div>
+          <label for="employeeCode">কোড নং</label>
+          <input type="text" id="employeeCode" placeholder="কর্মী কোড">
+        </div>
+      </div>
+
+      <label for="branchArea">অনিয়মকৃত ব্রাঞ্চ/এরিয়া</label>
+      <input type="text" id="branchArea" placeholder="শাখা বা এলাকার নাম">
+
+      <label for="region">কর্মস্থল</label>
+      <select id="region" required></select>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">২</span> দায় ও কিস্তির বিবরণ</h2>
+      <label for="installments">কত কিস্তি</label>
+      <input type="number" id="installments" min="0" placeholder="মোট কিস্তির সংখ্যা">
+
+      <label for="overdueAmount">মেয়াদোত্তীর্ণ ঋনের দায় এর পরিমান</label>
+      <input type="number" id="overdueAmount" min="0" step="0.01" required placeholder="৳">
+
+      <div class="row2">
+        <div>
+          <label for="monthlyDue">মাসিক আদায়যোগ্য</label>
+          <input type="number" id="monthlyDue" min="0" step="0.01" placeholder="৳">
+        </div>
+        <div>
+          <label for="monthlyCollected">মাসিক আদায়ের পরিমান</label>
+          <input type="number" id="monthlyCollected" min="0" step="0.01" placeholder="৳">
+        </div>
+      </div>
+
+      <label for="collectedSoFar">এপর্যন্ত দায় আদায়ের পরিমান</label>
+      <input type="number" id="collectedSoFar" min="0" step="0.01" placeholder="৳">
+
+      <div class="remaining-box">
+        <span>অবশিষ্ট অর্থ</span>
+        <span class="amount" id="remainingDisplay">৳ ০</span>
+      </div>
+
+      <label for="comment">মন্তব্য</label>
+      <textarea id="comment" placeholder="ঐচ্ছিক মন্তব্য"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">এন্ট্রি জমা দিন</button>
+    <div class="status" id="status"></div>
+  </form>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbyGmo3J6xnOAlxuvUwEz0UoxXa-34CCJvswc2tzzJ6A54Y2nqbpEA8_40916944kxYWGg/exec';
+
+const FALLBACK_REGIONS = ['প্রধান কার্যালয়','ফরিদপুর রিজিয়ন','চট্টগ্রাম (উত্তর) রিজিয়ন','চট্টগ্রাম (পার্বত্য) রিজিয়ন','বরিশাল রিজিয়ন','কুষ্টিয়া রিজিয়ন','কুমিল্লা রিজিয়ন','রংপুর রিজিয়ন','যশোর রিজিয়ন','কিশোরগঞ্জ রিজিয়ন','ঢাকা (দক্ষিন) রিজিয়ন','ঢাকা (উত্তর) রিজিয়ন','বি-বাড়ীয়া রিজিয়ন','বগুড়া রিজিয়ন','দিনাজপুর রিজিয়ন','ভোলা রিজিয়ন','পটুয়াখালী রিজিয়ন','ময়মনসিংহ রিজিয়ন','রাজশাহী রিজিয়ন','চট্টগ্রাম (দক্ষিন) রিজিয়ন'];
+// ────────────────────────────────────────────────────────────────────
+
+const regionSel = document.getElementById('region');
+const configWarning = document.getElementById('configWarning');
+
+function fillSelect(sel, items) {
+  sel.innerHTML = items.map(v => `<option value="${v}">${v}</option>`).join('');
+}
+fillSelect(regionSel, FALLBACK_REGIONS);
+
+// Date field defaults to today, but stays editable -- whatever's selected on submit is what's written to column B
+const entryDateInput = document.getElementById('entryDate');
+function todayISO() {
+  const d = new Date();
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 10);
+}
+entryDateInput.value = todayISO();
+
+if (API_URL.indexOf('PUT_YOUR') === 0) {
+  configWarning.style.display = 'block';
+} else {
+  fetch(API_URL + '?action=meta')
+    .then(r => r.json())
+    .then(meta => { if (meta.regions && meta.regions.length) fillSelect(regionSel, meta.regions); })
+    .catch(() => { /* keep fallback list silently */ });
+}
+
+// Live remaining amount calculation
+const overdueInput = document.getElementById('overdueAmount');
+const collectedSoFarInput = document.getElementById('collectedSoFar');
+const remainingDisplay = document.getElementById('remainingDisplay');
+function updateRemaining() {
+  const overdue = parseFloat(overdueInput.value) || 0;
+  const collected = parseFloat(collectedSoFarInput.value) || 0;
+  const remaining = overdue - collected;
+  remainingDisplay.textContent = '৳ ' + remaining.toLocaleString('bn-BD');
+  remainingDisplay.classList.toggle('bad', remaining > 0);
+}
+overdueInput.addEventListener('input', updateRemaining);
+collectedSoFarInput.addEventListener('input', updateRemaining);
+
+// Submit
+const form = document.getElementById('entryForm');
+const submitBtn = document.getElementById('submitBtn');
+const statusBox = document.getElementById('status');
+
+form.addEventListener('submit', function (ev) {
+  ev.preventDefault();
+
+  if (API_URL.indexOf('PUT_YOUR') === 0) {
+    showStatus('err', 'API_URL কনফিগার করা হয়নি — এন্ট্রি জমা দেওয়া যাবে না।');
+    return;
+  }
+
+  const payload = {
+    date: entryDateInput.value,
+    region: regionSel.value,
+    name: document.getElementById('name').value.trim(),
+    designation: document.getElementById('designation').value.trim(),
+    employeeCode: document.getElementById('employeeCode').value.trim(),
+    branchArea: document.getElementById('branchArea').value.trim(),
+    installments: document.getElementById('installments').value,
+    overdueAmount: overdueInput.value,
+    monthlyDue: document.getElementById('monthlyDue').value,
+    monthlyCollected: document.getElementById('monthlyCollected').value,
+    collectedSoFar: collectedSoFarInput.value,
+    comment: document.getElementById('comment').value.trim()
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'জমা হচ্ছে...';
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight against Apps Script
+    body: JSON.stringify(payload)
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        showStatus('ok', `এন্ট্রি সংরক্ষণ হয়েছে (সারি ${res.row})। অবশিষ্ট অর্থ: ৳ ${res.remaining}`);
+        form.reset();
+        entryDateInput.value = todayISO();
+        updateRemaining();
+      } else {
+        showStatus('err', 'ত্রুটি: ' + (res.error || 'অজানা সমস্যা'));
+      }
+    })
+    .catch(err => showStatus('err', 'নেটওয়ার্ক ত্রুটি: ' + err.message))
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'এন্ট্রি জমা দিন';
+    });
+});
+
+function showStatus(kind, msg) {
+  statusBox.className = 'status show ' + kind;
+  statusBox.textContent = msg;
+}
+</script>
+
+</body>
+</html>
