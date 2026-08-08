@@ -195,7 +195,6 @@
     </div>
 
     <button type="submit" class="submit-btn" id="submitBtn">এন্ট্রি জমা দিন</button>
-    <button type="button" class="reset-btn" id="resetBtn">🔄 ফর্ম রিসেট করুন</button>
     <div class="status" id="status"></div>
   </form>
 </div>
@@ -433,7 +432,6 @@ function resetForm() {
   statusBox.classList.remove('show');
   updateRemaining();
 }
-document.getElementById('resetBtn').addEventListener('click', resetForm);
 document.getElementById('topResetBtn').addEventListener('click', resetForm);
 </script>
 
