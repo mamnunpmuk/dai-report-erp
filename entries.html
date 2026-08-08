@@ -223,13 +223,10 @@ function handleDeleteClick(btn) {
     .then(res => {
       if (res.success) {
         showStatus('ok', 'এন্ট্রি ডিলিট হয়েছে');
-        loadEntries();
       } else {
         showStatus('err', 'ত্রুটি: ' + (res.error || 'অজানা সমস্যা'));
-        btn.disabled = false;
-        btn.classList.remove('confirm');
-        btn.textContent = '🗑 ডিলিট';
       }
+      loadEntries(); // always resync with the sheet, even on a reported error
     })
     .catch(err => {
       showStatus('err', 'নেটওয়ার্ক ত্রুটি: ' + err.message);
