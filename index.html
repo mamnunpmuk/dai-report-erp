@@ -19,6 +19,7 @@
     --good:#2f6b4f;
     --bad:#a83b2e;
     --muted:#6b7268;
+    --amber:#b5862f;
     --radius:10px;
   }
   *{box-sizing:border-box;}
@@ -27,13 +28,11 @@
   .topbar .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c9a876;margin-bottom:6px;}
   .topbar h1{margin:0;font-size:21px;font-weight:600;line-height:1.4;}
   .topbar p{margin:6px 0 0;color:#b9c7bd;font-size:14px;}
-  .date-chip{
-    display:inline-flex;align-items:center;gap:6px;
-    margin-top:10px;background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.15);
-    padding:5px 12px;border-radius:20px;
-    font-family:'JetBrains Mono',monospace;font-size:12px;color:#e8dfc8;
+  .topbar .nav-link{
+    display:inline-block;margin-top:12px;color:#e8dfc8;font-size:13px;
+    text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:20px;
   }
+  .topbar .nav-link:hover{background:rgba(255,255,255,.08);}
   .wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
   .card h2{font-size:14px;margin:0 0 14px;color:var(--pine);font-weight:600;display:flex;align-items:center;gap:8px;}
@@ -67,6 +66,33 @@
   .config-warning{background:#fdf1e0;border:1px solid #e6c48f;color:#7a5215;padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
   .config-warning code{font-family:'JetBrains Mono',monospace;background:#f2e2c2;padding:1px 5px;border-radius:4px;}
   .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  .lookup-panel{
+    display:none;margin-top:10px;background:#fbf3e4;border:1px solid #e6c48f;border-radius:8px;padding:12px 14px;
+  }
+  .lookup-panel.show{display:block;}
+  .lookup-panel .lp-title{font-size:13px;font-weight:600;color:var(--amber);margin-bottom:8px;}
+  .lookup-entry{
+    background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:13px;
+  }
+  .lookup-entry .row-top{display:flex;justify-content:space-between;font-weight:600;}
+  .lookup-entry .row-sub{color:var(--muted);font-size:12px;margin-top:2px;}
+  .lp-buttons{display:flex;gap:8px;margin-top:8px;}
+  .lp-buttons button{
+    flex:1;padding:9px;border-radius:6px;border:1px solid var(--line);font-family:'Hind Siliguri',sans-serif;
+    font-size:13px;cursor:pointer;background:#fff;
+  }
+  .lp-buttons button.primary{background:var(--pine);color:#fff;border-color:var(--pine);}
+
+  .mode-banner{
+    display:none;background:#e6f0ea;border:1px solid #b9d9c6;color:var(--good);
+    padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;
+    display:none;align-items:center;justify-content:space-between;
+  }
+  .mode-banner.show{display:flex;}
+  .mode-banner button{
+    background:none;border:none;color:var(--good);text-decoration:underline;cursor:pointer;font-size:12px;font-family:'Hind Siliguri',sans-serif;
+  }
 </style>
 </head>
 <body>
@@ -75,12 +101,18 @@
   <div class="eyebrow">পদক্ষেপ মানবিক উন্নয়ন কেন্দ্র · মানব সম্পদ ও প্রশাসন বিভাগ</div>
   <h1>মেয়াদোত্তীর্ণ ঋনের দায় এন্ট্রি</h1>
   <p>নতুন এন্ট্রি সরাসরি Google Sheet-এ যোগ হবে ও উপমোট/সর্বমোট স্বয়ংক্রিয়ভাবে হালনাগাদ হবে</p>
+  <a class="nav-link" href="entries.html">📋 সব এন্ট্রি দেখুন / ডিলিট করুন</a>
 </div>
 
 <div class="wrap">
 
   <div id="configWarning" class="config-warning" style="display:none">
     এই ফর্মটি এখনও ব্যাকএন্ডের সাথে যুক্ত করা হয়নি। <code>API_URL</code> ভ্যারিয়েবলে আপনার Apps Script Web App URL বসান (index.html এর নিচের দিকে)।
+  </div>
+
+  <div id="modeBanner" class="mode-banner">
+    <span id="modeBannerText">আগের এন্ট্রিতে যোগ করা হচ্ছে</span>
+    <button type="button" id="cancelModeBtn">বাতিল করে নতুন এন্ট্রি করুন</button>
   </div>
 
   <form id="entryForm">
@@ -90,6 +122,14 @@
       <input type="date" id="entryDate" required>
       <div class="hint">ডিফল্টভাবে আজকের তারিখ দেখাবে, প্রয়োজনে বদলে দিতে পারবেন</div>
 
+      <label for="employeeCode">কোড নং</label>
+      <input type="text" id="employeeCode" placeholder="কর্মী কোড">
+      <div class="hint">কোড দেওয়ার পর অন্য ফিল্ডে গেলে আগের কোনো এন্ট্রি থাকলে এখানে দেখাবে</div>
+      <div class="lookup-panel" id="lookupPanel">
+        <div class="lp-title">⚠️ এই কোডে আগের এন্ট্রি পাওয়া গেছে</div>
+        <div id="lookupResults"></div>
+      </div>
+
       <label for="name">কর্মীর নাম</label>
       <input type="text" id="name" required placeholder="পূর্ণ নাম লিখুন">
 
@@ -98,10 +138,7 @@
           <label for="designation">পদবী</label>
           <input type="text" id="designation" placeholder="যেমনঃ ব্রাঞ্চ ম্যানেজার">
         </div>
-        <div>
-          <label for="employeeCode">কোড নং</label>
-          <input type="text" id="employeeCode" placeholder="কর্মী কোড">
-        </div>
+        <div></div>
       </div>
 
       <label for="branchArea">অনিয়মকৃত ব্রাঞ্চ/এরিয়া</label>
@@ -130,8 +167,9 @@
         </div>
       </div>
 
-      <label for="collectedSoFar">এপর্যন্ত দায় আদায়ের পরিমান</label>
+      <label id="collectedSoFarLabel" for="collectedSoFar">এপর্যন্ত দায় আদায়ের পরিমান</label>
       <input type="number" id="collectedSoFar" min="0" step="0.01" placeholder="৳">
+      <div class="hint" id="collectedHint" style="display:none">মাসিক আদায়ের পরিমান লিখলে এটি স্বয়ংক্রিয়ভাবে হিসাব হয়ে যাবে (আগের সঞ্চিত আদায় + এই দফার আদায়)</div>
 
       <div class="remaining-box">
         <span>অবশিষ্ট অর্থ</span>
@@ -162,7 +200,6 @@ function fillSelect(sel, items) {
 }
 fillSelect(regionSel, FALLBACK_REGIONS);
 
-// Date field defaults to today, but stays editable -- whatever's selected on submit is what's written to column B
 const entryDateInput = document.getElementById('entryDate');
 function todayISO() {
   const d = new Date();
@@ -180,10 +217,106 @@ if (API_URL.indexOf('PUT_YOUR') === 0) {
     .catch(() => { /* keep fallback list silently */ });
 }
 
-// Live remaining amount calculation
+// ── Employee-code lookup ───────────────────────────────────────────
+let formMode = 'add';     // 'add' | 'update'
+let targetRow = null;
+let existingCollectedSoFar = 0; // cumulative এ পর্যন্ত আদায় already on the matched row (update mode only)
+
+const employeeCodeInput = document.getElementById('employeeCode');
+const lookupPanel = document.getElementById('lookupPanel');
+const lookupResults = document.getElementById('lookupResults');
+const modeBanner = document.getElementById('modeBanner');
+const modeBannerText = document.getElementById('modeBannerText');
+const cancelModeBtn = document.getElementById('cancelModeBtn');
+const collectedSoFarLabel = document.getElementById('collectedSoFarLabel');
+const collectedHint = document.getElementById('collectedHint');
+const submitBtn = document.getElementById('submitBtn');
+
+employeeCodeInput.addEventListener('blur', function () {
+  const code = employeeCodeInput.value.trim();
+  lookupPanel.classList.remove('show');
+  lookupResults.innerHTML = '';
+  if (!code || API_URL.indexOf('PUT_YOUR') === 0) return;
+
+  fetch(API_URL + '?action=lookup&code=' + encodeURIComponent(code))
+    .then(r => r.json())
+    .then(res => {
+      if (res.matches && res.matches.length) {
+        lookupResults.innerHTML = res.matches.map(m => `
+          <div class="lookup-entry">
+            <div class="row-top"><span>${m.name}</span><span>৳ ${m.remaining}</span></div>
+            <div class="row-sub">${m.region} · ${m.designation || ''}</div>
+            <div class="lp-buttons">
+              <button type="button" class="primary" data-row="${m.row}">এই এন্ট্রিতে যোগ করুন</button>
+            </div>
+          </div>
+        `).join('') + `<button type="button" id="skipLookupBtn" style="width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid #dcd6c6;background:#fff;font-family:'Hind Siliguri',sans-serif;cursor:pointer;">না, নতুন এন্ট্রি করব</button>`;
+        lookupPanel.classList.add('show');
+
+        lookupResults.querySelectorAll('button[data-row]').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const match = res.matches.find(m => String(m.row) === btn.dataset.row);
+            enterUpdateMode(match);
+          });
+        });
+        document.getElementById('skipLookupBtn').addEventListener('click', function () {
+          lookupPanel.classList.remove('show');
+        });
+      }
+    })
+    .catch(() => { /* silent -- lookup is a convenience, not required */ });
+});
+
+function enterUpdateMode(match) {
+  formMode = 'update';
+  targetRow = match.row;
+  existingCollectedSoFar = Number(match.collectedSoFar) || 0;
+  lookupPanel.classList.remove('show');
+
+  document.getElementById('name').value = match.name || '';
+  document.getElementById('designation').value = match.designation || '';
+  document.getElementById('branchArea').value = match.branchArea || '';
+  if (match.region) regionSel.value = match.region;
+  document.getElementById('installments').value = match.installments || '';
+  document.getElementById('overdueAmount').value = match.overdueAmount || '';
+  document.getElementById('monthlyDue').value = match.monthlyDue || '';
+  document.getElementById('monthlyCollected').value = ''; // this period's new payment -- blank, to be filled in
+
+  collectedSoFarLabel.textContent = 'এ পর্যন্ত আদায় (স্বয়ংক্রিয় হিসাব)';
+  collectedHint.style.display = 'block';
+  collectedSoFarInput.readOnly = true;
+  collectedSoFarInput.value = existingCollectedSoFar;
+
+  submitBtn.textContent = 'আগের এন্ট্রি আপডেট করুন';
+  modeBannerText.textContent = `${match.name} — সারি ${match.row} (আগে সঞ্চিত আদায়: ৳${existingCollectedSoFar}) এর এন্ট্রিতে যোগ করা হচ্ছে`;
+  modeBanner.classList.add('show');
+  updateRemaining();
+}
+
+function exitUpdateMode() {
+  formMode = 'add';
+  targetRow = null;
+  existingCollectedSoFar = 0;
+  collectedSoFarLabel.textContent = 'এপর্যন্ত দায় আদায়ের পরিমান';
+  collectedHint.style.display = 'none';
+  collectedSoFarInput.readOnly = false;
+  submitBtn.textContent = 'এন্ট্রি জমা দিন';
+  modeBanner.classList.remove('show');
+}
+
+cancelModeBtn.addEventListener('click', function () {
+  exitUpdateMode();
+  form.reset();
+  entryDateInput.value = todayISO();
+  updateRemaining();
+});
+
+// ── Live remaining amount calculation ──────────────────────────────
 const overdueInput = document.getElementById('overdueAmount');
 const collectedSoFarInput = document.getElementById('collectedSoFar');
+const monthlyCollectedInput = document.getElementById('monthlyCollected');
 const remainingDisplay = document.getElementById('remainingDisplay');
+
 function updateRemaining() {
   const overdue = parseFloat(overdueInput.value) || 0;
   const collected = parseFloat(collectedSoFarInput.value) || 0;
@@ -191,12 +324,24 @@ function updateRemaining() {
   remainingDisplay.textContent = '৳ ' + remaining.toLocaleString('bn-BD');
   remainingDisplay.classList.toggle('bad', remaining > 0);
 }
-overdueInput.addEventListener('input', updateRemaining);
-collectedSoFarInput.addEventListener('input', updateRemaining);
 
-// Submit
+// In update mode, এ পর্যন্ত আদায় is auto-computed: আগের সঞ্চিত + এই দফার (মাসিক আদায়ের পরিমান)
+monthlyCollectedInput.addEventListener('input', function () {
+  if (formMode === 'update') {
+    const thisPeriod = parseFloat(monthlyCollectedInput.value) || 0;
+    collectedSoFarInput.value = existingCollectedSoFar + thisPeriod;
+  }
+  updateRemaining();
+});
+
+overdueInput.addEventListener('input', updateRemaining);
+collectedSoFarInput.addEventListener('input', function () {
+  // manual typing only takes effect in add mode -- readonly in update mode anyway
+  updateRemaining();
+});
+
+// ── Submit ──────────────────────────────────────────────────────────
 const form = document.getElementById('entryForm');
-const submitBtn = document.getElementById('submitBtn');
 const statusBox = document.getElementById('status');
 
 form.addEventListener('submit', function (ev) {
@@ -208,11 +353,13 @@ form.addEventListener('submit', function (ev) {
   }
 
   const payload = {
+    action: formMode,
+    row: targetRow,
     date: entryDateInput.value,
     region: regionSel.value,
     name: document.getElementById('name').value.trim(),
     designation: document.getElementById('designation').value.trim(),
-    employeeCode: document.getElementById('employeeCode').value.trim(),
+    employeeCode: employeeCodeInput.value.trim(),
     branchArea: document.getElementById('branchArea').value.trim(),
     installments: document.getElementById('installments').value,
     overdueAmount: overdueInput.value,
@@ -227,15 +374,19 @@ form.addEventListener('submit', function (ev) {
 
   fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight against Apps Script
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   })
     .then(r => r.json())
     .then(res => {
       if (res.success) {
-        showStatus('ok', `এন্ট্রি সংরক্ষণ হয়েছে (সারি ${res.row})। অবশিষ্ট অর্থ: ৳ ${res.remaining}`);
+        const msg = res.updated
+          ? `এন্ট্রি আপডেট হয়েছে (সারি ${res.row})। মোট আদায়: ৳ ${res.collectedSoFar}, অবশিষ্ট অর্থ: ৳ ${res.remaining}`
+          : `এন্ট্রি সংরক্ষণ হয়েছে (সারি ${res.row})। অবশিষ্ট অর্থ: ৳ ${res.remaining}`;
+        showStatus('ok', msg);
         form.reset();
         entryDateInput.value = todayISO();
+        exitUpdateMode();
         updateRemaining();
       } else {
         showStatus('err', 'ত্রুটি: ' + (res.error || 'অজানা সমস্যা'));
@@ -244,7 +395,7 @@ form.addEventListener('submit', function (ev) {
     .catch(err => showStatus('err', 'নেটওয়ার্ক ত্রুটি: ' + err.message))
     .finally(() => {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'এন্ট্রি জমা দিন';
+      if (formMode === 'add') submitBtn.textContent = 'এন্ট্রি জমা দিন';
     });
 });
 
