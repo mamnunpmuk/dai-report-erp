@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>সব এন্ট্রি — মেয়াদোত্তীর্ণ ঋনের দায়</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16231f;
+    --paper:#f6f4ee;
+    --panel:#ffffff;
+    --line:#dcd6c6;
+    --pine:#1f4a3d;
+    --pine-deep:#132f27;
+    --clay:#b5622f;
+    --clay-deep:#8f4a22;
+    --good:#2f6b4f;
+    --bad:#a83b2e;
+    --muted:#6b7268;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Hind Siliguri',sans-serif;min-height:100vh;}
+  .topbar{background:var(--pine-deep);color:#f0ece0;padding:22px 20px 20px;border-bottom:4px solid var(--clay);}
+  .topbar .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c9a876;margin-bottom:6px;}
+  .topbar h1{margin:0;font-size:20px;font-weight:600;line-height:1.4;}
+  .topbar .nav-link{
+    display:inline-block;margin-top:12px;color:#e8dfc8;font-size:13px;
+    text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:20px;
+  }
+  .topbar .nav-link:hover{background:rgba(255,255,255,.08);}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px;}
+  .search-box{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+    font-family:'Hind Siliguri',sans-serif;font-size:15px;background:#fdfcf9;color:var(--ink);
+    margin-bottom:16px;
+  }
+  .region-group{margin-bottom:18px;}
+  .region-title{
+    font-size:14px;font-weight:600;color:var(--pine);margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .region-title .count{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);padding:1px 8px;border-radius:10px;
+  }
+  .entry-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin-bottom:8px;
+  }
+  .entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .entry-name{font-weight:600;font-size:14px;}
+  .entry-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .entry-figures{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;
+    margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:12px;
+  }
+  .entry-figures .f-label{color:var(--muted);display:block;font-size:10px;}
+  .entry-figures .f-value{color:var(--ink);font-weight:600;}
+  .entry-figures .f-value.bad{color:var(--bad);}
+  .entry-comment{font-size:12px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px;}
+  .entry-actions{display:flex;gap:8px;flex-shrink:0;}
+  .del-btn{
+    background:#fff;border:1px solid #e3b6ac;color:var(--bad);border-radius:6px;
+    padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;white-space:nowrap;
+  }
+  .del-btn.confirm{background:var(--bad);color:#fff;}
+  .empty-msg, .loading-msg{text-align:center;color:var(--muted);padding:40px 0;font-size:14px;}
+  .status{margin:0 0 16px;padding:12px 14px;border-radius:8px;font-size:14px;display:none;}
+  .status.show{display:block;}
+  .status.ok{background:#e6f0ea;color:var(--good);border:1px solid #b9d9c6;}
+  .status.err{background:#f7e5e1;color:var(--bad);border:1px solid #e3b6ac;}
+  .config-warning{background:#fdf1e0;border:1px solid #e6c48f;color:#7a5215;padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+  .config-warning code{font-family:'JetBrains Mono',monospace;background:#f2e2c2;padding:1px 5px;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="eyebrow">পদক্ষেপ মানবিক উন্নয়ন কেন্দ্র · মানব সম্পদ ও প্রশাসন বিভাগ</div>
+  <h1>সব এন্ট্রি — মেয়াদোত্তীর্ণ ঋনের দায়</h1>
+  <a class="nav-link" href="index.html">➕ নতুন এন্ট্রি করুন</a>
+</div>
+
+<div class="wrap">
+  <div id="configWarning" class="config-warning" style="display:none">
+    <code>API_URL</code> ভ্যারিয়েবলে আপনার Apps Script Web App URL বসান (entries.html এর নিচের দিকে)।
+  </div>
+  <div class="status" id="status"></div>
+  <input type="text" id="searchBox" class="search-box" placeholder="নাম, কোড, বা ব্রাঞ্চ দিয়ে খুঁজুন...">
+  <div id="listContainer"><div class="loading-msg">লোড হচ্ছে...</div></div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyGmo3J6xnOAlxuvUwEz0UoxXa-34CCJvswc2tzzJ6A54Y2nqbpEA8_40916944kxYWGg/exec';
+
+const listContainer = document.getElementById('listContainer');
+const configWarning = document.getElementById('configWarning');
+const statusBox = document.getElementById('status');
+const searchBox = document.getElementById('searchBox');
+
+let allEntries = [];
+
+function showStatus(kind, msg) {
+  statusBox.className = 'status show ' + kind;
+  statusBox.textContent = msg;
+  setTimeout(() => statusBox.classList.remove('show'), 4000);
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return '';
+  return dt.toLocaleDateString('bn-BD', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function render(filterText) {
+  const q = (filterText || '').trim().toLowerCase();
+  const filtered = q
+    ? allEntries.filter(e =>
+        (e.name || '').toLowerCase().includes(q) ||
+        String(e.employeeCode || '').toLowerCase().includes(q) ||
+        (e.branchArea || '').toLowerCase().includes(q))
+    : allEntries;
+
+  if (!filtered.length) {
+    listContainer.innerHTML = '<div class="empty-msg">কোনো এন্ট্রি পাওয়া যায়নি</div>';
+    return;
+  }
+
+  const byRegion = {};
+  filtered.forEach(e => {
+    if (!byRegion[e.region]) byRegion[e.region] = [];
+    byRegion[e.region].push(e);
+  });
+
+  listContainer.innerHTML = Object.keys(byRegion).map(region => `
+    <div class="region-group">
+      <div class="region-title">${region} <span class="count">${byRegion[region].length}</span></div>
+      ${byRegion[region].map(e => `
+        <div class="entry-card" data-row="${e.row}">
+          <div class="entry-top">
+            <div>
+              <div class="entry-name">${e.name}</div>
+              <div class="entry-sub">${e.designation || ''} ${e.employeeCode ? '· কোড: ' + e.employeeCode : ''} ${e.branchArea ? '· ' + e.branchArea : ''} · ${formatDate(e.date)}</div>
+            </div>
+            <div class="entry-actions">
+              <button class="del-btn" data-row="${e.row}">🗑 ডিলিট</button>
+            </div>
+          </div>
+          <div class="entry-figures">
+            <div><span class="f-label">দায়</span><span class="f-value">৳ ${e.overdueAmount}</span></div>
+            <div><span class="f-label">মাসিক আদায়যোগ্য</span><span class="f-value">৳ ${e.monthlyDue}</span></div>
+            <div><span class="f-label">এ পর্যন্ত আদায়</span><span class="f-value">৳ ${e.collectedSoFar}</span></div>
+            <div><span class="f-label">অবশিষ্ট</span><span class="f-value ${e.remaining > 0 ? 'bad' : ''}">৳ ${e.remaining}</span></div>
+          </div>
+          ${e.comment ? `<div class="entry-comment">${e.comment}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  listContainer.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleDeleteClick(btn));
+  });
+}
+
+function handleDeleteClick(btn) {
+  if (!btn.classList.contains('confirm')) {
+    btn.classList.add('confirm');
+    btn.textContent = 'নিশ্চিত? আবার চাপুন';
+    setTimeout(() => {
+      btn.classList.remove('confirm');
+      btn.textContent = '🗑 ডিলিট';
+    }, 3000);
+    return;
+  }
+
+  const row = btn.dataset.row;
+  btn.disabled = true;
+  btn.textContent = 'ডিলিট হচ্ছে...';
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'delete', row: row })
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        showStatus('ok', 'এন্ট্রি ডিলিট হয়েছে');
+        loadEntries();
+      } else {
+        showStatus('err', 'ত্রুটি: ' + (res.error || 'অজানা সমস্যা'));
+        btn.disabled = false;
+        btn.classList.remove('confirm');
+        btn.textContent = '🗑 ডিলিট';
+      }
+    })
+    .catch(err => {
+      showStatus('err', 'নেটওয়ার্ক ত্রুটি: ' + err.message);
+      btn.disabled = false;
+      btn.classList.remove('confirm');
+      btn.textContent = '🗑 ডিলিট';
+    });
+}
+
+function loadEntries() {
+  listContainer.innerHTML = '<div class="loading-msg">লোড হচ্ছে...</div>';
+  fetch(API_URL + '?action=entries')
+    .then(r => r.json())
+    .then(res => {
+      allEntries = res.entries || [];
+      render(searchBox.value);
+    })
+    .catch(err => {
+      listContainer.innerHTML = '<div class="empty-msg">লোড করতে সমস্যা হয়েছে: ' + err.message + '</div>';
+    });
+}
+
+searchBox.addEventListener('input', () => render(searchBox.value));
+
+if (API_URL.indexOf('PUT_YOUR') === 0) {
+  configWarning.style.display = 'block';
+  listContainer.innerHTML = '';
+} else {
+  loadEntries();
+}
+</script>
+
+</body>
+</html>
