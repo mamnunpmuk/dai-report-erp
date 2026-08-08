@@ -33,6 +33,12 @@
     text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:20px;
   }
   .topbar .nav-link:hover{background:rgba(255,255,255,.08);}
+  .topbar .reset-link{
+    font-family:'Hind Siliguri',sans-serif;cursor:pointer;margin-left:8px;
+    appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.1);
+    color:#f0ece0;font-weight:600;
+  }
+  .topbar .reset-link:hover{background:rgba(255,255,255,.2);}
   .wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
   .card h2{font-size:14px;margin:0 0 14px;color:var(--pine);font-weight:600;display:flex;align-items:center;gap:8px;}
@@ -63,6 +69,11 @@
   }
   .submit-btn:hover{background:var(--clay-deep);}
   .submit-btn:disabled{background:#c9c2ae;cursor:not-allowed;}
+  .reset-btn{
+    width:100%;padding:11px;background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:8px;
+    font-family:'Hind Siliguri',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;transition:background .15s;
+  }
+  .reset-btn:hover{background:#f2efe6;color:var(--ink);}
   .status{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;display:none;}
   .status.show{display:block;}
   .status.ok{background:#e6f0ea;color:var(--good);border:1px solid #b9d9c6;}
@@ -106,6 +117,7 @@
   <h1>মেয়াদোত্তীর্ণ ঋনের দায় এন্ট্রি</h1>
   <p>নতুন এন্ট্রি সরাসরি Google Sheet-এ যোগ হবে ও উপমোট/সর্বমোট স্বয়ংক্রিয়ভাবে হালনাগাদ হবে</p>
   <a class="nav-link" href="entries.html">📋 সব এন্ট্রি দেখুন / ডিলিট করুন</a>
+  <button type="button" class="nav-link reset-link" id="topResetBtn">রিসেট</button>
 </div>
 
 <div class="wrap">
@@ -183,6 +195,7 @@
     </div>
 
     <button type="submit" class="submit-btn" id="submitBtn">এন্ট্রি জমা দিন</button>
+    <button type="button" class="reset-btn" id="resetBtn">🔄 ফর্ম রিসেট করুন</button>
     <div class="status" id="status"></div>
   </form>
 </div>
@@ -405,6 +418,23 @@ function showStatus(kind, msg) {
   statusBox.className = 'status show ' + kind;
   statusBox.textContent = msg;
 }
+
+// Stop mouse-wheel scroll from silently incrementing/decrementing number fields
+document.querySelectorAll('input[type=number]').forEach(el => {
+  el.addEventListener('wheel', () => el.blur(), { passive: true });
+});
+
+// Reset button -- clears the whole form and exits update mode
+function resetForm() {
+  form.reset();
+  entryDateInput.value = todayISO();
+  exitUpdateMode();
+  lookupPanel.classList.remove('show');
+  statusBox.classList.remove('show');
+  updateRemaining();
+}
+document.getElementById('resetBtn').addEventListener('click', resetForm);
+document.getElementById('topResetBtn').addEventListener('click', resetForm);
 </script>
 
 </body>
