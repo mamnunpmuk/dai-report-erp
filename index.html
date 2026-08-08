@@ -434,7 +434,7 @@ document.querySelectorAll('input[type=number]').forEach(el => {
   el.addEventListener('wheel', () => el.blur(), { passive: true });
 });
 
-// Reset button -- clears the whole form and exits update mode 
+// Reset button -- clears the whole form and exits update mode
 function resetForm() {
   form.reset();
   entryDateInput.value = todayISO();
